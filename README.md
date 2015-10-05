@@ -1,7 +1,7 @@
 # haxe-webapp
 Sample Haxe Video Game
 
-View Game at this [Link](https://s3.amazonaws.com/uploads.hipchat.com/69515/932142/cevJfyRutSA7krm/FlixelTut.swf)
+Download Game SWF at this [Link](https://s3.amazonaws.com/uploads.hipchat.com/69515/932142/cevJfyRutSA7krm/FlixelTut.swf)
 `[Last Updated: 10/4/2015 9:08 PM]`
 Requires:
 `Flash Player`
