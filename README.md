@@ -9,7 +9,7 @@ Requires:
 Top Down RPG Game
 ![Game Example](https://s3.amazonaws.com/uploads.hipchat.com/69515/932142/PJwdzwV33YFSNY0/upload.png)
 
-Has Sample:
+Includes:
 * HUD
 * Turn Based Combat
 * Map Generation
