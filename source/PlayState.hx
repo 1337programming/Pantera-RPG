@@ -17,6 +17,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxPath;
 import flixel.util.FlxPoint;
 import flixel.util.FlxSave;
+import flixel.util.FlxSpriteUtil;
 import openfl.Assets;
 
 enum PlayerAction {
@@ -38,6 +39,7 @@ class PlayState extends FlxState
 	private var movementMarker:FlxSprite;
 	private var path:FlxPath;
 	private var potions:FlxTypedGroup<Potion>;
+	private var corpses:FlxTypedGroup<Corpse>;
 	private var saveButton:FlxButton;
 	private var tileMap:FlxTilemap;
 	private var particleEmitter:FlxEmitter;
@@ -50,6 +52,20 @@ class PlayState extends FlxState
 	public var hero:FlxSprite;
 	public var hud:HUD;
 	public var loadedGame:Bool;
+	private var sfx_death1:FlxSound;
+	private var sfx_death2:FlxSound;
+	private var sfx_death3:FlxSound;
+	private var sfx_death4:FlxSound;
+	private var sfx_death5:FlxSound;
+	private var sfx_death6:FlxSound;
+	private var sfx_death7:FlxSound;
+	private var sfx_acknowledge1:FlxSound;
+	private var sfx_acknowledge2:FlxSound;
+	private var sfx_acknowledge3:FlxSound;
+	private var sfx_acknowledge4:FlxSound;
+	private var sfx_acknowledge5:FlxSound;
+	private var sfx_acknowledge6:FlxSound;
+
 	
 	/**
 	 * Function that is called up when to state is created to set it up.
@@ -90,6 +106,9 @@ class PlayState extends FlxState
 		potions = new FlxTypedGroup<Potion>();
 		add(potions);
 		
+		corpses = new FlxTypedGroup<Corpse>();
+		add(corpses);
+		
 		hero.animation.play("down");
 		path = new FlxPath();
 		
@@ -120,6 +139,20 @@ class PlayState extends FlxState
 		
 		saveButton = new FlxButton(FlxG.width - 80, 0, "Save", doSave);
 		add(saveButton);
+		
+		sfx_death1 = FlxG.sound.load("assets/sounds/death/death1.wav");
+		sfx_death2 = FlxG.sound.load("assets/sounds/death/death2.wav");
+		sfx_death3 = FlxG.sound.load("assets/sounds/death/death3.wav");
+		sfx_death4 = FlxG.sound.load("assets/sounds/death/death4.wav");
+		sfx_death5 = FlxG.sound.load("assets/sounds/death/death5.wav");
+		sfx_death6 = FlxG.sound.load("assets/sounds/death/death6.wav");
+		sfx_death7 = FlxG.sound.load("assets/sounds/death/death7.wav");
+		sfx_acknowledge1 = FlxG.sound.load("assets/sounds/hero/acknowledge1.wav");
+		sfx_acknowledge2 = FlxG.sound.load("assets/sounds/hero/acknowledge2.wav");
+		sfx_acknowledge3 = FlxG.sound.load("assets/sounds/hero/acknowledge3.wav");
+		sfx_acknowledge4 = FlxG.sound.load("assets/sounds/hero/acknowledge4.wav");
+		sfx_acknowledge5 = FlxG.sound.load("assets/sounds/hero/acknowledge5.wav");
+		sfx_acknowledge6 = FlxG.sound.load("assets/sounds/hero/acknowledge6.wav");
 	}
 	
 	public function newGame():Void {
@@ -152,6 +185,11 @@ class PlayState extends FlxState
 		if(save.data.potions != null){
 			for (i in 0...save.data.potions.length) {
 				spawnPotion(Math.floor(save.data.potions[i].x / TILE_WIDTH), Math.floor(save.data.potions[i].y / TILE_HEIGHT));
+			}
+		}
+		if(save.data.corpses != null){
+			for (i in 0...save.data.corpses.length) {
+				spawnCorpse(Math.floor(save.data.corpses[i].x), Math.floor(save.data.corpses[i].y));
 			}
 		}
 		hero.x = save.data.heroX;
@@ -187,6 +225,12 @@ class PlayState extends FlxState
 				save.data.potions.push({ x: potions.members[i].x, y: potions.members[i].y });
 			}
 		}
+		save.data.corpses = new Array<Dynamic>();
+		for (i in 0...corpses.members.length) {
+			if(corpses.members[i].exists && corpses.members[i].active){
+				save.data.corpses.push({ x: corpses.members[i].x, y: corpses.members[i].y });
+			}
+		}
 		save.data.heroX = hero.x;
 		save.data.heroY = hero.y;
 		save.data.cameraX = cameraFocus.x;
@@ -201,6 +245,13 @@ class PlayState extends FlxState
 		potion.x = x * TILE_WIDTH;
 		potion.y = y * TILE_HEIGHT;
 		potions.add(potion);
+	}
+	
+	private function spawnCorpse(x:Int, y:Int):Void{
+		var corpse:Corpse = new Corpse();
+		corpse.x = x;
+		corpse.y = y;
+		corpses.add(corpse);
 	}
 	
 	private function addEnemy(x:Int, y:Int):Void {
@@ -251,10 +302,22 @@ class PlayState extends FlxState
 	}
 	
 	public function winCombat(enemy:Enemy):Void {
+		var rand:Int = Math.round(Math.random() * 7);
+		switch rand {
+			case 1: sfx_death1.play();
+			case 2: sfx_death2.play();
+			case 3: sfx_death3.play();
+			case 4: sfx_death4.play();
+			case 5: sfx_death5.play();
+			case 6: sfx_death6.play();
+			case 7: sfx_death7.play();
+			default: sfx_death1.play();
+		}
 		endCombat(enemy);
 	}
 	
 	public function endCombat(enemy:Enemy):Void {
+		spawnCorpse(Math.floor(enemy.x), Math.floor(enemy.y));
 		enemy.kill();
 		combatHide = FlxTween.tween(combatWindow, {y: -200 }, 1, { type: FlxTween.ONESHOT, ease: FlxEase.quadIn, complete: hideCombat} );
 		hero.active = true;
@@ -345,16 +408,31 @@ class PlayState extends FlxState
 			var tileCoordY:Int = Math.floor(FlxG.mouse.y / TILE_HEIGHT);
 			
 			movementMarker.visible = true;
+			movementMarker.alpha = 1;
 			if (tileMap.getTile(tileCoordX, tileCoordY) == 2) {
 				var nodes:Array<FlxPoint> = tileMap.findPath(FlxPoint.get(hero.x + TILE_WIDTH/2, hero.y + TILE_HEIGHT/2), FlxPoint.get(tileCoordX * TILE_WIDTH + TILE_WIDTH/2, tileCoordY * TILE_HEIGHT + TILE_HEIGHT/2));
 				if (nodes != null) {
 					path.start(hero, nodes);
 					movementMarker.loadGraphic(AssetPaths.marker_move__png, false, TILE_WIDTH, TILE_HEIGHT);
+					var rand:Int = Math.round(Math.random() * 6);
+					
+					switch rand {
+						case 1: sfx_acknowledge1.play();
+						case 2: sfx_acknowledge2.play();
+						case 3: sfx_acknowledge3.play();
+						case 4: sfx_acknowledge4.play();
+						case 5: sfx_acknowledge5.play();
+						case 6: sfx_acknowledge6.play();
+						default: sfx_acknowledge1.play();
+					}
+					FlxSpriteUtil.fadeOut(movementMarker, 0.5);
 				}else {
 					movementMarker.loadGraphic(AssetPaths.marker_stop__png, false, TILE_WIDTH, TILE_HEIGHT);
+					FlxSpriteUtil.fadeOut(movementMarker, 0.5);
 				}
 			}else {
 				movementMarker.loadGraphic(AssetPaths.marker_stop__png, false, TILE_WIDTH, TILE_HEIGHT);
+				FlxSpriteUtil.fadeOut(movementMarker, 0.5);
 			}
 			movementMarker.setPosition(tileCoordX * TILE_WIDTH, tileCoordY * TILE_HEIGHT);
 		}
