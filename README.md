@@ -1,4 +1,4 @@
-# haxe-webapp
+# haxe-game
 Simple Top Down Haxe RPG Game
 
 Download Game SWF at this [Link](https://s3.amazonaws.com/uploads.hipchat.com/69515/932142/cevJfyRutSA7krm/FlixelTut.swf)
