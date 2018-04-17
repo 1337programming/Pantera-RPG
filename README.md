@@ -1,10 +1,13 @@
 # Pantera RPG
 Simple Top Down Haxe RPG Game
 
+## I want to play!
 Download Game SWF at this [Link](https://s3.amazonaws.com/uploads.hipchat.com/69515/932142/cevJfyRutSA7krm/FlixelTut.swf)
 `[Last Updated: 10/4/2015 9:08 PM]`
 Requires:
-`Flash Player`
+`Flash Player` (LOL)
+
+Once downloaded, drop it into Chrome.
 
 Top Down RPG Game
 ![Game Example](https://s3.amazonaws.com/uploads.hipchat.com/69515/932142/PJwdzwV33YFSNY0/upload.png)
